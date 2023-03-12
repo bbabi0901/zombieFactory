@@ -5,5 +5,5 @@ module.exports = async function (deployer, network) {
 
   const factory = await deployer.deploy(Factory);
 
-  console.log("FactoryV1 ADDR: ", factory.address);
+  console.log("FactoryV1 ADDR: ", Factory.address);
 };
