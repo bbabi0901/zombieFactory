@@ -4,37 +4,42 @@ const ganache = require("ganache");
 const provider = ganache.provider();
 const web3 = new Web3(provider);
 
+async function catchRevert(promise) {
+  const errMessage =
+    "Returned error: VM Exception while processing transaction: revert";
+  try {
+    await promise;
+    throw null;
+  } catch (err) {
+    assert(err, "Expected an error but did not get one");
+    assert(
+      err.message === errMessage,
+      `Expected ${errMessage}, but got ${err.message}`
+    );
+  }
+}
+
 function createAddress2(address, salt, byteCode) {
   return `0x${web3.utils
     .sha3(
-      `0xff${[address, nameToBytes32(salt), web3.utils.sha3(byteCode)]
+      `0xff${[address, nameToSalt(salt), web3.utils.sha3(byteCode)]
         .map((x) => x.replace(/0x/, ""))
         .join("")}`
     )
     .slice(-40)}`.toLowerCase();
 }
 
-function nameToBytes32(name) {
+function nameToSalt(name) {
   return web3.utils.sha3(name);
 }
 
-function numberToUint256(value) {
-  const hex = value.toString(16);
-  return `0x${"0".repeat(64 - hex.length)}${hex}`;
-}
-
-function encodeParam(dataType, data) {
-  return web3.eth.abi.encodeParameter(dataType, data);
-}
-
-async function isDeployed(address) {
-  const code = await web3.eth.getCode(address);
-  return code.slice(2).length > 0;
+function encodeParams(dataTypes, data) {
+  return web3.eth.abi.encodeParameters(dataTypes, data);
 }
 
 module.exports = {
+  catchRevert,
   createAddress2,
-  numberToUint256,
-  encodeParam,
-  isDeployed,
+  nameToSalt,
+  encodeParams,
 };

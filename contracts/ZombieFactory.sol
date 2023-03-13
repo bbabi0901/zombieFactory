@@ -52,4 +52,20 @@ contract ZombieFactory {
     uint randDna = _generateRandomDna(_name);
     _createZombieV2(_name, randDna);
   }
+
+  function getSalt(string memory _name) public pure returns (bytes32) {
+    bytes32 salt = keccak256(abi.encodePacked(_name));
+    return salt;
+  }
+
+  function getBytecode(
+    string memory _name,
+    uint _dna
+  ) public pure returns (bytes memory) {
+    bytes memory bytecode = abi.encodePacked(
+      type(Zombie).creationCode,
+      abi.encode(_name, _dna)
+    );
+    return bytecode;
+  }
 }
