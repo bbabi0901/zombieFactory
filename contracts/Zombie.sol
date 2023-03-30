@@ -13,4 +13,14 @@ contract Zombie {
   function destroy(address payable recipient) public {
     selfdestruct(recipient);
   }
+
+  function setDNA(
+    address _contract,
+    uint _dna
+  ) public returns (bool, bytes memory) {
+    (bool success, bytes memory data) = _contract.delegatecall(
+      abi.encodeWithSignature("setVars(uint256)", _dna)
+    );
+    return (success, data);
+  }
 }
