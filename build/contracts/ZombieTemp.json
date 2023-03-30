@@ -1892,15 +1892,15 @@
     "absolutePath": "project:/contracts/ZombieTemp.sol",
     "exportedSymbols": {
       "ZombieTemp": [
-        285
+        314
       ]
     },
-    "id": 286,
+    "id": 315,
     "license": "MIT",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 270,
+        "id": 299,
         "literals": [
           "solidity",
           "^",
@@ -1917,9 +1917,9 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "fullyImplemented": true,
-        "id": 285,
+        "id": 314,
         "linearizedBaseContracts": [
-          285
+          314
         ],
         "name": "ZombieTemp",
         "nameLocation": "66:10:2",
@@ -1928,12 +1928,12 @@
           {
             "constant": false,
             "functionSelector": "06fdde03",
-            "id": 272,
+            "id": 301,
             "mutability": "mutable",
             "name": "name",
             "nameLocation": "95:4:2",
             "nodeType": "VariableDeclaration",
-            "scope": 285,
+            "scope": 314,
             "src": "81:18:2",
             "stateVariable": true,
             "storageLocation": "default",
@@ -1942,7 +1942,7 @@
               "typeString": "string"
             },
             "typeName": {
-              "id": 271,
+              "id": 300,
               "name": "string",
               "nodeType": "ElementaryTypeName",
               "src": "81:6:2",
@@ -1956,12 +1956,12 @@
           {
             "constant": false,
             "functionSelector": "7e904090",
-            "id": 274,
+            "id": 303,
             "mutability": "mutable",
             "name": "dna",
             "nameLocation": "115:3:2",
             "nodeType": "VariableDeclaration",
-            "scope": 285,
+            "scope": 314,
             "src": "103:15:2",
             "stateVariable": true,
             "storageLocation": "default",
@@ -1970,7 +1970,7 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 273,
+              "id": 302,
               "name": "uint",
               "nodeType": "ElementaryTypeName",
               "src": "103:4:2",
@@ -1983,23 +1983,23 @@
           },
           {
             "body": {
-              "id": 283,
+              "id": 312,
               "nodeType": "Block",
               "src": "158:21:2",
               "statements": [
                 {
                   "expression": {
-                    "id": 281,
+                    "id": 310,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
-                      "id": 279,
+                      "id": 308,
                       "name": "dna",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 274,
+                      "referencedDeclaration": 303,
                       "src": "164:3:2",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint256",
@@ -2009,11 +2009,11 @@
                     "nodeType": "Assignment",
                     "operator": "=",
                     "rightHandSide": {
-                      "id": 280,
+                      "id": 309,
                       "name": "_dna",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 276,
+                      "referencedDeclaration": 305,
                       "src": "170:4:2",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint256",
@@ -2026,14 +2026,14 @@
                       "typeString": "uint256"
                     }
                   },
-                  "id": 282,
+                  "id": 311,
                   "nodeType": "ExpressionStatement",
                   "src": "164:10:2"
                 }
               ]
             },
             "functionSelector": "6466414b",
-            "id": 284,
+            "id": 313,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -2041,17 +2041,17 @@
             "nameLocation": "132:7:2",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 277,
+              "id": 306,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 276,
+                  "id": 305,
                   "mutability": "mutable",
                   "name": "_dna",
                   "nameLocation": "145:4:2",
                   "nodeType": "VariableDeclaration",
-                  "scope": 284,
+                  "scope": 313,
                   "src": "140:9:2",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2060,7 +2060,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 275,
+                    "id": 304,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "140:4:2",
@@ -2075,19 +2075,19 @@
               "src": "139:11:2"
             },
             "returnParameters": {
-              "id": 278,
+              "id": 307,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "158:0:2"
             },
-            "scope": 285,
+            "scope": 314,
             "src": "123:56:2",
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "public"
           }
         ],
-        "scope": 286,
+        "scope": 315,
         "src": "57:124:2",
         "usedErrors": []
       }
@@ -2100,7 +2100,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.11",
-  "updatedAt": "2023-03-30T05:06:04.860Z",
+  "updatedAt": "2023-03-30T05:43:27.162Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},

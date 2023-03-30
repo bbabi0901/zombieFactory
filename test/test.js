@@ -110,6 +110,34 @@ contract("ZombieFactory", async (accounts) => {
       assert.strictEqual(+dna, dnaModified, `DNA should be ${dnaModified}`);
     });
     it("setDNA로 변경시 ZombieTemp contract의 상태가 바뀌지 않아야 합니다.", async () => {
+      const res = await zombie1.setDNA(zombieTemp.address, dnaModified);
+      dna = await zombieTemp.dna();
+      console.log("dna state of zombieTemp contract", +dna);
+      assert.notStrictEqual(
+        +dna,
+        dnaModified,
+        `DNA should not be ${dnaModified}`
+      );
+    });
+  });
+  describe("Staticcall", () => {
+    let tx, zombie1Addr, name, zombieDNA, zombie1;
+    const dnaModified = 12345678;
+    beforeEach(async () => {
+      tx = await zombieFactory.createRandomZombie(name1);
+      var { zombie, dna } = tx.logs[0].args;
+      zombie1Addr = zombie;
+      zombie1 = await Zombie.at(zombie1Addr);
+      name = await zombie1.name();
+      zombieDNA = +dna;
+    });
+    it("staticcall로 state 변경하려고 하면?", async () => {
+      const res = await zombie1.setDNAbyStaticcall(
+        zombieTemp.address,
+        dnaModified
+      );
+      console.log(res.logs[0].args);
+      // staticcall은 call처럼 zombieTemp의 상태변수를 바꿔야한다.
       dna = await zombieTemp.dna();
       console.log("dna state of zombieTemp contract", +dna);
       assert.notStrictEqual(

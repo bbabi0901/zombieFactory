@@ -10,6 +10,8 @@ contract Zombie {
     dna = _dna;
   }
 
+  event Set(bool res);
+
   function destroy(address payable recipient) public {
     selfdestruct(recipient);
   }
@@ -21,6 +23,18 @@ contract Zombie {
     (bool success, bytes memory data) = _contract.delegatecall(
       abi.encodeWithSignature("setVars(uint256)", _dna)
     );
+    emit Set(success);
+    return (success, data);
+  }
+
+  function setDNAbyStaticcall(
+    address _contract,
+    uint _dna
+  ) public returns (bool, bytes memory) {
+    (bool success, bytes memory data) = _contract.staticcall(
+      abi.encodeWithSignature("setVars(uint256)", _dna)
+    );
+    emit Set(success);
     return (success, data);
   }
 }
