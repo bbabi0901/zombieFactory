@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.9;
 
+import "hardhat/console.sol";
 import "./Zombie.sol";
 
 contract ZombieFactory {
@@ -13,11 +14,19 @@ contract ZombieFactory {
 
   event Created(address zombie, uint dna);
 
-  function _createZombie(string memory _name, uint _dna) private {
+  function _createZombie(
+    string memory _name,
+    uint _dna
+  ) private returns (address) {
     Zombie zombie = new Zombie(_name, _dna);
+
+    console.log("created", address(zombie));
+
     zombies.push(zombie);
 
     emit Created(address(zombie), _dna);
+
+    return address(zombie);
   }
 
   function _generateRandomDna(string memory _str) private view returns (uint) {
@@ -25,9 +34,9 @@ contract ZombieFactory {
     return rand % dnaModulus;
   }
 
-  function createRandomZombie(string memory _name) public {
+  function createRandomZombie(string memory _name) public returns (address) {
     uint randDna = _generateRandomDna(_name);
-    _createZombie(_name, randDna);
+    return _createZombie(_name, randDna);
   }
 
   function _createZombieV2(string memory _name, uint _dna) private {
