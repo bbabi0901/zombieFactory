@@ -71,10 +71,8 @@ contract ZombieFactory {
     string memory _name,
     uint _dna
   ) public pure returns (bytes memory) {
-    bytes memory bytecode = abi.encodePacked(
-      type(Zombie).creationCode,
-      abi.encode(_name, _dna)
-    );
-    return bytecode;
+    bytes memory bytecode = type(Zombie).creationCode;
+
+    return abi.encodePacked(bytecode, abi.encode(_name, _dna));
   }
 }

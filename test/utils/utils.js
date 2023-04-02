@@ -4,9 +4,7 @@ const ganache = require("ganache");
 const provider = ganache.provider();
 const web3 = new Web3(provider);
 
-async function catchRevert(promise) {
-  const errMessage =
-    "Returned error: VM Exception while processing transaction: revert";
+async function catchRevert(promise, errMessage) {
   try {
     await promise;
     throw null;
@@ -14,7 +12,8 @@ async function catchRevert(promise) {
     assert(err, "Expected an error but did not get one");
     assert(
       err.message === errMessage,
-      `Expected ${errMessage}, but got ${err.message}`
+      `Expected ${errMessage}, 
+      but got ${err.message}`
     );
   }
 }
