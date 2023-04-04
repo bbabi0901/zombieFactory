@@ -22,7 +22,7 @@ const REVERT_MESSAGE =
 
 describe("ZombieFactory", async () => {
   let factory, zombieTemp;
-
+  const dnaModified = 1234567890;
   before(async () => {
     this.GILDONG = "Gildong";
     this.CHULSOO = "Chulsoo";
@@ -167,9 +167,6 @@ describe("ZombieFactory", async () => {
   });
 
   describe("Modifying state with delegatecall", () => {
-    // let tx, gildongAddress, gildongContract, gildongDNA;
-    const dnaModified = 12345678910;
-
     beforeEach(async () => {
       let { address, dna, contract } = await createZombie(this.GILDONG);
       this.gildongAddress = address;
@@ -178,11 +175,11 @@ describe("ZombieFactory", async () => {
     });
 
     it("setDNA로 변경시 Zombie contract의 상태가 바뀌어야 합니다.", async () => {
+      // set event 확인할 필요 있다.
       await this.gildongContract.setDNA(zombieTemp.address, dnaModified);
 
       const dna = await this.gildongContract.dna();
 
-      // assert.strictEqual(+dna, dnaModified, `DNA should be ${dnaModified}`);
       expect(+dna).to.equal(dnaModified);
     });
 
@@ -195,32 +192,24 @@ describe("ZombieFactory", async () => {
       expect(+dnaTemp).to.equal(0);
     });
   });
-  /*
+
   describe("Staticcall", () => {
-    let tx, zombie1Addr, name, zombieDNA, zombie1;
-    const dnaModified = 12345678;
     beforeEach(async () => {
-      tx = await zombieFactory.createRandomZombie(name1);
-      var { zombie, dna } = tx.logs[0].args;
-      zombie1Addr = zombie;
-      zombie1 = await Zombie.at(zombie1Addr);
-      name = await zombie1.name();
-      zombieDNA = +dna;
+      let { address, dna, contract } = await createZombie(this.GILDONG);
+      this.gildongAddress = address;
+      this.gildongDNA = dna;
+      this.gildongContract = contract;
     });
-    it("staticcall로 state 변경하려고 하면?", async () => {
-      const res = await zombie1.setDNAbyStaticcall(
+
+    it("staticcall로 state 변경하려고 하면 reverts", async () => {
+      const res = await this.gildongContract.setDNAbyStaticcall(
         zombieTemp.address,
         dnaModified
       );
-      // staticcall은 call처럼 zombieTemp의 상태변수를 바꿔야한다.
+      // staticcall은 call처럼 zombie의 상태변수를 바꿔야한다.
       dna = await zombieTemp.dna();
       console.log("dna state of zombieTemp contract", +dna);
-      assert.notStrictEqual(
-        +dna,
-        dnaModified,
-        `DNA should not be ${dnaModified}`
-      );
+      expect(+dna).to.equal(dnaModified);
     });
   });
-  */
 });
