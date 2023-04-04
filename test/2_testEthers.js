@@ -21,7 +21,7 @@ const REVERT_MESSAGE =
 // const ZombieTemp = artifacts.require("ZombieTemp"); 나중에 쓸거임
 
 describe("ZombieFactory", async () => {
-  let factory;
+  let factory, zombieTemp;
 
   before(async () => {
     this.GILDONG = "Gildong";
@@ -34,6 +34,10 @@ describe("ZombieFactory", async () => {
     console.log("Deployed Factory: ", factory.address);
 
     this.Zombie = await ethers.getContractFactory("Zombie");
+
+    this.ZombieTemp = await ethers.getContractFactory("ZombieTemp");
+    zombieTemp = await this.ZombieTemp.deploy();
+    await zombieTemp.deployed();
   });
 
   const createZombie = async (name) => {
@@ -162,40 +166,36 @@ describe("ZombieFactory", async () => {
     });
   });
 
-  /*
   describe("Modifying state with delegatecall", () => {
-    let tx, zombie1Addr, name, zombieDNA, zombie1;
-    const dnaModified = 12345678;
+    // let tx, gildongAddress, gildongContract, gildongDNA;
+    const dnaModified = 12345678910;
 
     beforeEach(async () => {
-      tx = await zombieFactory.createRandomZombie(name1);
-      var { zombie, dna } = tx.logs[0].args;
-      zombie1Addr = zombie;
-      zombie1 = await Zombie.at(zombie1Addr);
-      name = await zombie1.name();
-      zombieDNA = +dna;
+      let { address, dna, contract } = await createZombie(this.GILDONG);
+      this.gildongAddress = address;
+      this.gildongDNA = dna;
+      this.gildongContract = contract;
     });
 
     it("setDNA로 변경시 Zombie contract의 상태가 바뀌어야 합니다.", async () => {
-      const res = await zombie1.setDNA(zombieTemp.address, dnaModified);
+      await this.gildongContract.setDNA(zombieTemp.address, dnaModified);
 
-      dna = await zombie1.dna();
+      const dna = await this.gildongContract.dna();
 
-      assert.strictEqual(+dna, dnaModified, `DNA should be ${dnaModified}`);
+      // assert.strictEqual(+dna, dnaModified, `DNA should be ${dnaModified}`);
+      expect(+dna).to.equal(dnaModified);
     });
 
     it("setDNA로 변경시 ZombieTemp contract의 상태가 바뀌지 않아야 합니다.", async () => {
-      const res = await zombie1.setDNA(zombieTemp.address, dnaModified);
-      dna = await zombieTemp.dna();
-      console.log("dna state of zombieTemp contract", +dna);
-      assert.notStrictEqual(
-        +dna,
-        dnaModified,
-        `DNA should not be ${dnaModified}`
-      );
+      await this.gildongContract.setDNA(zombieTemp.address, dnaModified);
+
+      const dnaTemp = await zombieTemp.dna();
+      console.log("dna state of zombieTemp contract", +dnaTemp);
+      expect(+dnaTemp).not.to.equal(dnaModified);
+      expect(+dnaTemp).to.equal(0);
     });
   });
-
+  /*
   describe("Staticcall", () => {
     let tx, zombie1Addr, name, zombieDNA, zombie1;
     const dnaModified = 12345678;
