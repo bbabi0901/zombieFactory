@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/bbabi0901/zombieFactory#readme",
   "dependencies": {
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
     "ganache": "^7.7.6",
     "truffle": "^5.8.1",
     "truffle-assertions": "^0.9.2"
