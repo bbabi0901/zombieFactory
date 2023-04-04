@@ -4,87 +4,83 @@ const { BN, expectEvent, expectRevert } = require("@openzeppelin/test-helpers");
 const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
 
 const {
-  catchRevert,
   createAddress2,
   nameToSalt,
   encodeParams,
+  decodeEvent,
+  EVENT_TYPES_CREATE,
 } = require("./utils/utils.js");
 
 const {
   bytecode: zombieBytecode,
 } = require("../artifacts/contracts/Zombie.sol/Zombie.json");
 
+const REVERT_MESSAGE =
+  "VM Exception while processing transaction: revert without reason string";
+
 // const ZombieTemp = artifacts.require("ZombieTemp"); 나중에 쓸거임
 
-describe("ZombieFactory", async (accounts) => {
+describe("ZombieFactory", async () => {
   let factory;
 
   before(async () => {
     this.GILDONG = "Gildong";
     this.CHULSOO = "Chulsoo";
+    this.WONKI = "Wonki";
 
     this.Factory = await ethers.getContractFactory("ZombieFactory");
     factory = await this.Factory.deploy();
     await factory.deployed();
     console.log("Deployed Factory: ", factory.address);
+
+    this.Zombie = await ethers.getContractFactory("Zombie");
   });
 
-  const createZombieFixture = async (name) => {
-    const Zombie = await ethers.getContractFactory("Zombie");
+  const createZombie = async (name) => {
+    // tx ~ res 가져오는거는 utils에 구현, decode에 들어가는 배열은 인자로 받는 형식으로
     const tx = await factory.createRandomZombie(name);
 
-    // console.log(tx);
-    /*
-    Ethers.js에서 tx 대신 wait 후 receipt를 사용하는 이유
-    to wait till tx confirmed.
-    https://stackoverflow.com/questions/69013697/get-events-from-a-transaction-receipt-in-hardhat
-    */
     const receipt = await tx.wait();
 
-    let [address, dna] = ethers.utils.defaultAbiCoder.decode(
-      ["address", "uint"],
-      receipt.events[0].data
-    );
+    let [address, dna] = decodeEvent(EVENT_TYPES_CREATE, receipt);
     dna = +dna;
-
-    const contract = Zombie.attach(address);
+    const contract = this.Zombie.attach(address);
 
     return { address, dna, contract };
   };
 
   // create2
-  const create2ZombieFixture = async (name) => {
-    const tx = await this.factory.createRandomZombieV2(name);
+  const create2Zombie = async (name) => {
+    const tx = await factory.createRandomZombieV2(name);
 
-    let address;
-    // address from tx(or event log)
+    const receipt = await tx.wait();
 
-    const contract = await this.Zombie.attach(address);
+    let [address, dna] = decodeEvent(EVENT_TYPES_CREATE, receipt);
+    dna = +dna;
+    const contract = this.Zombie.attach(address);
 
     // returns address and contract
-    return { address, contract };
+    return { address, dna, contract };
   };
 
-  const selfdestructFixture = async (contract) => {
-    await contract.destroy();
+  const selfdestruct = async (contract) => {
+    await contract.destroy(factory.address);
   };
 
   describe("'CREATE' and 'CREATE2", () => {
     it("'CREATE'로 생성시 두 컨트랙트의 주소가 달라야 합니다.", async () => {
-      const { gildongAddress, gildongDNA, gildongContract } = await loadFixture(
-        createZombieFixture(this.GILDONG)
-      );
-      console.log("after fixture", gildongAddress, gildongDNA);
+      const { address: gildongAddress, contract: gildongContract } =
+        await createZombie(this.GILDONG);
 
       let name = await gildongContract.name();
+
       expect(this.GILDONG).to.equal(
         name,
         `Expect ${this.GILDONG}, got ${name}`
       );
 
-      const { chulsooAddress, chulsooContract } = await loadFixture(
-        createZombieFixture(this.CHULSOO)
-      );
+      const { address: chulsooAddress, contract: chulsooContract } =
+        await createZombie(this.CHULSOO);
       name = await chulsooContract.name();
       expect(this.CHULSOO).to.equal(
         name,
@@ -100,41 +96,70 @@ describe("ZombieFactory", async (accounts) => {
       );
     });
 
-    /*
-    it("이름이 같은 좀비를 생성시 실패해야 합니다.", async () => {
-      const errMessage =
-        "Returned error: VM Exception while processing transaction: revert without reason string";
-      await catchRevert(zombieFactory.createRandomZombieV2(name1), errMessage);
+    it("'CREATE'로 생성하는 좀비의 이름이 같아도 성공해야 합니다.", async () => {
+      const { contract: gildongContract } = await createZombie(this.GILDONG);
+      await gildongContract.deployed();
+
+      const { contract: gildong2Contract } = await createZombie(this.GILDONG);
+      await gildong2Contract.deployed();
     });
 
-    it("좀비의 주소가 오프체인에서 특정한 주소와 같아야 합니다.", async () => {
-      console.log("created2", zombie1.address);
-      dna = +(await zombie1.dna());
-      dnaString = dna.toString();
-      name = await zombie1.name();
+    it("'CREATE2'로 생성하는 좀비의 이름이 같으면 실패해야 합니다.", async () => {
+      const { contract: gildongContract } = await create2Zombie(this.GILDONG);
 
-      const params = encodeParams(["string", "uint"], [name, dnaString]);
+      await gildongContract.deployed();
+
+      await expectRevert(
+        factory.createRandomZombieV2(this.GILDONG),
+        REVERT_MESSAGE
+      );
+
+      selfdestruct(gildongContract);
+    });
+
+    it("'CREAT2'로 생성된 주소와 오프체인에서 특정한 주소와 같아야 합니다.", async () => {
+      const {
+        address: gildongAddress,
+        dna: gildongDNA,
+        contract: gildongContract,
+      } = await create2Zombie(this.GILDONG);
+
+      dnaString = (+gildongDNA).toString();
+
+      const params = encodeParams(
+        ["string", "uint"],
+        [this.GILDONG, dnaString]
+      );
 
       const bytecode = `${zombieBytecode}${params.slice(2)}`;
-      const bytecodeFromContract = await zombieFactory.getBytecode(name, dna);
+      const bytecodeFromContract = await factory.getBytecode(
+        this.GILDONG,
+        +gildongDNA
+      );
       assert.equal(bytecodeFromContract, bytecode, "bytecode differs ");
 
-      const salt = nameToSalt(name1);
-      assert.equal(await zombieFactory.getSalt(name), salt, "salt differs");
+      const salt = nameToSalt(this.GILDONG);
+      assert.equal(await factory.getSalt(this.GILDONG), salt, "salt differs");
 
-      const computeAddr = createAddress2(zombieFactory.address, name, bytecode);
-      assert.equal(zombie1Addr.toLowerCase(), computeAddr, "addr differs");
+      const computeAddr = createAddress2(
+        factory.address,
+        this.GILDONG,
+        bytecode
+      );
+      assert.equal(gildongAddress.toLowerCase(), computeAddr, "addr differs");
+
+      selfdestruct(gildongContract);
     });
 
     it("이름이 다른 두 좀비의 주소가 달라야 합니다.", async () => {
-      const tx = await zombieFactory.createRandomZombieV2(name2);
-      var { zombie, dna } = tx.logs[0].args;
-      let zombie2Addr = zombie;
-      let zombie2 = await Zombie.at(zombie2Addr);
-      name = await zombie2.name();
-      assert.strictEqual(name, name2);
-      assert.notStrictEqual(zombie1Addr, zombie2Addr);
-    });*/
+      const { address: gildongAddress } = await create2Zombie(this.GILDONG);
+      const { address: chulsooAddress } = await create2Zombie(this.CHULSOO);
+
+      expect(gildongAddress).not.to.equal(
+        chulsooAddress,
+        "Address should not be same"
+      );
+    });
   });
 
   /*
