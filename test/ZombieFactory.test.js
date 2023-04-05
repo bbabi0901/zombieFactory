@@ -202,14 +202,14 @@ describe("ZombieFactory", async () => {
     });
 
     it("staticcall로 state 변경하려고 하면 reverts", async () => {
-      const res = await this.gildongContract.setDNAbyStaticcall(
+      await this.gildongContract.setDNAbyStaticcall(
         zombieTemp.address,
         dnaModified
       );
       // staticcall은 call처럼 zombie의 상태변수를 바꿔야한다.
-      dna = await zombieTemp.dna();
-      console.log("dna state of zombieTemp contract", +dna);
-      expect(+dna).to.equal(dnaModified);
+      dnaTemp = await zombieTemp.dna();
+      console.log("dna state of zombieTemp contract", +dnaTemp);
+      expect(+dnaTemp).to.equal(dnaModified);
     });
   });
 });
